@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
+use Illuminate\Routing\RouteGroup;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +17,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/product', [ProductController::class, 'getAllProduct']);
+Route::get('/product', [ProductController::class, 'getAllProduct']); // get all products
+
+// post method
+Route::post('/image', [ProductController::class, 'addImage']); // add image
+Route::post('/detail', [ProductController::class, 'addDetail']); // add detail
+Route::post('/color', [ProductController::class, 'addColor']); // add detail
+
 
 //
 
