@@ -12,15 +12,18 @@ class ProductController extends Controller
     {
         $pageSize = $request->query('pageSize', 10);
         $pageIndex = $request->query('pageIndex', 0);
-        $getProductQuery = "
-        SELECT
-           *
-        FROM product
-        ORDER BY product.id DESC
-        LIMIT $pageSize OFFSET $pageIndex 
-        ";
 
-        $products = DB::select(DB::raw($getProductQuery));
+
+        if ($pageIndex != 0) {
+
+            $pageIndex = $pageSize * $pageIndex;
+        }
+
+        $products = DB::table('product')
+            ->select('*')
+            ->offset($pageIndex)
+            ->limit($pageSize)
+            ->get();
 
         for ($i = 0; $i < count($products); $i++) {
             // get colors
@@ -114,6 +117,36 @@ class ProductController extends Controller
             return response()->json([
                 [
                     'messsage' => 'added color unsuccessfully',
+                    'status' => '402',
+                ]
+            ]);
+        }
+    }
+
+    public function addProduct(Request $request)
+    {
+        $request->validate([
+            'id_ref' => 'required',
+            'name' => 'required',
+            'price' => 'required',
+            'discount' => 'required',
+            'price_after_discount' => 'required',
+            'is_warranty' => 'required',
+            'warranty_period' => 'required',
+            'min_qty' => 'required',
+        ]);
+        try {
+            DB::table('product')->insert($request->all());
+            return response()->json([
+                [
+                    'message' => 'added product successfully',
+                    'status' => '200',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                [
+                    'messsage' => 'added product unsuccessfully',
                     'status' => '402',
                 ]
             ]);

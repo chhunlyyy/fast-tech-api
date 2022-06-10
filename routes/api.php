@@ -20,11 +20,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/product', [ProductController::class, 'getAllProduct']); // get all products
 
 // post method
+Route::post('/product', [ProductController::class, 'addProduct']); // add image
 Route::post('/image', [ProductController::class, 'addImage']); // add image
 Route::post('/detail', [ProductController::class, 'addDetail']); // add detail
 Route::post('/color', [ProductController::class, 'addColor']); // add detail
-
-
 //
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
