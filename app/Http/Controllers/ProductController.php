@@ -13,17 +13,43 @@ class ProductController extends Controller
         $pageSize = $request->query('pageSize', 10);
         $pageIndex = $request->query('pageIndex', 0);
 
+        $isGetCameraProduct = $request->query('isGetCameraProduct', 0);
+        $isGetElectronicProduct = $request->query('isGetElectronicProduct', 0);
+
+        $isMinQtyOne =  $request->query('isMinQtyOne', 1);
 
         if ($pageIndex != 0) {
 
             $pageIndex = $pageSize * $pageIndex;
         }
 
-        $products = DB::table('product')
-            ->select('*')
-            ->offset($pageIndex)
-            ->limit($pageSize)
-            ->get();
+        $operator = $isMinQtyOne == 1 ? '=' : '>';
+
+        if ($isGetCameraProduct == 1) {
+            $products = DB::table('product')
+                ->select('*')
+                ->where('is_camera', '=', 1)
+                ->where('min_qty', $operator, 1)
+                ->offset($pageIndex)
+                ->limit($pageSize)
+                ->get();
+        } else if ($isGetElectronicProduct == 1) {
+            $products = DB::table('product')
+                ->select('*')
+                ->where('is_camera', '=', 0)
+                ->where('min_qty', $operator, 1)
+                ->offset($pageIndex)
+                ->limit($pageSize)
+                ->get();
+        } else {
+            $products = DB::table('product')
+                ->select('*')
+                ->offset($pageIndex)
+                ->limit($pageSize)
+                ->get();
+        }
+
+
 
         for ($i = 0; $i < count($products); $i++) {
             // get colors
