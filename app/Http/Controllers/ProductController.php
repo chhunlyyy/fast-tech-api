@@ -19,7 +19,6 @@ class ProductController extends Controller
         $isMinQtyOne =  $request->query('isMinQtyOne', 1);
 
         if ($pageIndex != 0) {
-
             $pageIndex = $pageSize * $pageIndex;
         }
 
@@ -32,6 +31,7 @@ class ProductController extends Controller
                 ->where('min_qty', $operator, 1)
                 ->offset($pageIndex)
                 ->limit($pageSize)
+                ->orderBy('id', 'DESC')
                 ->get();
         } else if ($isGetElectronicProduct == 1) {
             $products = DB::table('product')
@@ -40,16 +40,59 @@ class ProductController extends Controller
                 ->where('min_qty', $operator, 1)
                 ->offset($pageIndex)
                 ->limit($pageSize)
+                ->orderBy('id', 'DESC')
                 ->get();
         } else {
             $products = DB::table('product')
                 ->select('*')
                 ->offset($pageIndex)
                 ->limit($pageSize)
+                ->orderBy('id', 'DESC')
                 ->get();
         }
 
 
+
+        for ($i = 0; $i < count($products); $i++) {
+            // get colors
+            $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
+            // get images
+            $images = DB::table('image')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
+            // get details
+            $details = DB::table('detail')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
+
+            $products[$i]->colors = $colors;
+            $products[$i]->images = $images;
+            $products[$i]->details = $details;
+        }
+
+        return $products;
+    }
+
+    public function search(Request $request)
+    {
+        $request->validate([
+            'product_name' => 'required'
+        ]);
+        $pageSize = $request->query('pageSize', 10);
+        $pageIndex = $request->query('pageIndex', 0);
+
+        $productName = $request->product_name;
+
+        if ($pageIndex != 0) {
+            $pageIndex = $pageSize * $pageIndex;
+        }
+        // get phone data //
+
+        $qeury = "
+            SELECT
+               *
+            FROM product
+            WHERE product.name LIKE '%$productName%'
+            ORDER BY product.id DESC
+            LIMIT $pageSize OFFSET $pageIndex";
+
+        $products  = DB::select(DB::raw($qeury));
 
         for ($i = 0; $i < count($products); $i++) {
             // get colors

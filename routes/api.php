@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/product', [ProductController::class, 'getAllProduct']); // get all products
-
+Route::get('/search', [ProductController::class, 'search']); // search 
 // post method
 Route::post('/product', [ProductController::class, 'addProduct']); // add image
 Route::post('/image', [ProductController::class, 'addImage']); // add image
