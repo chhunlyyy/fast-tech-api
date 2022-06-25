@@ -11,6 +11,30 @@ class OrderController extends Controller
 {
 
 
+    public function removeCart(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+        ]);
+        try {
+            DB::table('cart')->delete($request->id);
+            return response()->json([
+                [
+                    'messsage' => 'delete cart successfully',
+                    'status' => '200',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                [
+                    'messsage' => 'delete cart unsuccessfully',
+                    'status' => '402',
+                ]
+            ]);
+        }
+    }
+
+
 
     public function getCart(Request $request)
     {
@@ -24,10 +48,6 @@ class OrderController extends Controller
         for ($i = 0; $i < count($products); $i++) {
             $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
             $products[$i]->qty = $products[$i]->qty;
-
-
-
-
             // get colors
             $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
             // get images
