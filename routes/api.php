@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+Route::get('/cart', [OrderController::class, 'getCart']); // get cart
+Route::post('/cart', [OrderController::class, 'addToCart']); // add to cart
+//
 Route::get('/product', [ProductController::class, 'getAllProduct']); // get all products
 Route::get('/search', [ProductController::class, 'search']); // search 
 // post method
@@ -27,7 +31,5 @@ Route::post('/detail', [ProductController::class, 'addDetail']); // add detail
 Route::post('/color', [ProductController::class, 'addColor']); // add detail
 // user controller
 Route::post('/user-register', [UserController::class, 'register']); // register user
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::post('/user-login', [UserController::class, 'login']); // register user
+Route::get('/user', [UserController::class, 'getUser']); //get user
