@@ -11,6 +11,51 @@ class OrderController extends Controller
 {
 
 
+    public function order(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'product_id' => 'required',
+            'color_id' => 'required',
+            'qty' => 'required',
+            'delivery_type' => 'required',
+            'status' => 'required',
+            'address_id_ref' => 'required',
+            'is_buy_from_cart' => 'required',
+        ]);
+
+        try {
+
+            if ($request->is_buy_from_cart == 0) {
+                $product = DB::table('cart')
+                    ->select('*')
+                    ->where('user_id', '=', $request->user_id)
+                    ->where('product_id', '=', $request->product_id)
+                    ->where('color_id', '=', $request->color_id)
+                    ->get();
+                DB::table('cart')->delete($product[0]->id);
+            }
+
+            $request = $request->except('is_buy_from_cart');
+            DB::table('orders')->insert($request);
+
+            return response()->json([
+                [
+                    'message' => 'added to order successfully',
+                    'status' => '200',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                [
+                    'messsage' => $e->getMessage(),
+                    'status' => '402',
+                ]
+            ]);
+        }
+    }
+
+
     public function removeCart(Request $request)
     {
         $request->validate([
@@ -96,6 +141,7 @@ class OrderController extends Controller
                 [
                     'message' => 'added to cart successfully',
                     'status' => '200',
+
                 ]
             ]);
         } catch (\Exception $e) {

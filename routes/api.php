@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+Route::post('/order', [OrderController::class, 'order']); // get cart
+//
 Route::post('/remove-cart', [OrderController::class, 'removeCart']); // get cart
 Route::get('/cart', [OrderController::class, 'getCart']); // get cart
 Route::post('/cart', [OrderController::class, 'addToCart']); // add to cart
