@@ -11,6 +11,123 @@ class OrderController extends Controller
 {
 
 
+    public function getDeliveryOrder(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+        ]);
+
+
+        $products = DB::table('orders')
+            ->where('user_id', '=', $request->user_id)
+            ->where('delivery_type', '=', 1)
+            ->select('*')->get();
+
+        for ($i = 0; $i < count($products); $i++) {
+            $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
+            $products[$i]->qty = $products[$i]->qty;
+            // get colors
+            $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            // get images
+            $images = DB::table('image')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            // get details
+            $details = DB::table('detail')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            //get location
+
+            $address = DB::table('address')->select('*')->where("id_ref", "=", $products[$i]->address_id_ref)->get();
+
+            $products[$i]->product->colors = $colors;
+            $products[$i]->product->images = $images;
+            $products[$i]->product->details = $details;
+            $products[$i]->product->address = $address;
+        }
+
+        return $products;
+    }
+
+
+    public function getPickupOrder(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+        ]);
+
+
+        $products = DB::table('orders')
+            ->where('user_id', '=', $request->user_id)
+            ->where('delivery_type', '=', 0)
+            ->select('*')->get();
+
+        for ($i = 0; $i < count($products); $i++) {
+            $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
+            $products[$i]->qty = $products[$i]->qty;
+            // get colors
+            $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            // get images
+            $images = DB::table('image')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            // get details
+            $details = DB::table('detail')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+
+            $products[$i]->product->colors = $colors;
+            $products[$i]->product->images = $images;
+            $products[$i]->product->details = $details;
+        }
+
+        return $products;
+    }
+
+
+    public function deliveryOrder(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'product_id' => 'required',
+            'color_id' => 'required',
+            'qty' => 'required',
+            'delivery_type' => 'required',
+            'status' => 'required',
+            'address_id_ref' => 'required',
+            "latitude" => 'required',
+            "longitude" => 'required',
+            'is_buy_from_cart' => 'required',
+        ]);
+
+        try {
+
+            if ($request->is_buy_from_cart == 0) {
+                $product = DB::table('cart')
+                    ->select('*')
+                    ->where('user_id', '=', $request->user_id)
+                    ->where('product_id', '=', $request->product_id)
+                    ->where('color_id', '=', $request->color_id)
+                    ->get();
+                DB::table('cart')->delete($product[0]->id);
+            }
+
+            $location = array("id_ref" => $request->address_id_ref, "latitude" => $request->latitude, "longitude" => $request->longitude);
+
+            $request = $request->except(['is_buy_from_cart', 'latitude', 'longitude']);
+
+            DB::table('orders')->insert($request);
+            DB::table('address')->insert($location);
+
+            return response()->json([
+                [
+                    'message' => 'added to order successfully',
+                    'status' => '200',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                [
+                    'messsage' => $e->getMessage(),
+                    'status' => '402',
+                ]
+            ]);
+        }
+    }
+
+
     public function order(Request $request)
     {
         $request->validate([

@@ -19,7 +19,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::post('/order', [OrderController::class, 'order']); // get cart
+Route::get('/delivery-order', [OrderController::class, 'getDeliveryOrder']); // get delivery order
+Route::get('/pickup-order', [OrderController::class, 'getPickupOrder']); // get pick up order
+Route::post('/order', [OrderController::class, 'order']); // add pick up order
+Route::post('/delivery-order', [OrderController::class, 'deliveryOrder']); // add delivery order
 //
 Route::post('/remove-cart', [OrderController::class, 'removeCart']); // get cart
 Route::get('/cart', [OrderController::class, 'getCart']); // get cart
