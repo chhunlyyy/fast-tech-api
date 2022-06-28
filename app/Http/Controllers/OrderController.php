@@ -11,6 +11,40 @@ class OrderController extends Controller
 {
 
 
+    public function getPackageOrder(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+        ]);
+
+
+        $products = DB::table('package')
+            ->where('user_id', '=', $request->user_id)
+            ->select('*')->get();
+
+        for ($i = 0; $i < count($products); $i++) {
+            $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
+
+            // get colors
+            $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            // get images
+            $images = DB::table('image')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            // get details
+            $details = DB::table('detail')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
+            //get location
+
+            $address = DB::table('address')->select('*')->where("id_ref", "=", $products[$i]->address_id_ref)->get();
+
+            $products[$i]->product->colors = $colors;
+            $products[$i]->product->images = $images;
+            $products[$i]->product->details = $details;
+            $products[$i]->product->address = $address;
+        }
+
+        return $products;
+    }
+
+
     public function getDeliveryOrder(Request $request)
     {
         $request->validate([
@@ -74,6 +108,55 @@ class OrderController extends Controller
         }
 
         return $products;
+    }
+
+
+
+    public function packageOrder(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'product_id' => 'required',
+            'address_id_ref' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ]);
+
+
+        try {
+
+
+            $orderPackage = array(
+                'user_id' => $request->user_id,
+                'product_id' => $request->product_id,
+                'address_id_ref' => $request->address_id_ref
+            );
+
+            $address = array(
+                'id_ref' => $request->address_id_ref,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude
+            );
+
+
+
+            DB::table('address')->insert($address);
+            DB::table('package')->insert($orderPackage);
+
+            return response()->json([
+                [
+                    'message' => 'added to package order successfully',
+                    'status' => '200',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                [
+                    'messsage' => $e->getMessage(),
+                    'status' => '402',
+                ]
+            ]);
+        }
     }
 
 

@@ -19,15 +19,20 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+
+
+Route::get('/package-order', [OrderController::class, 'getPackageOrder']); // get package order
 Route::get('/delivery-order', [OrderController::class, 'getDeliveryOrder']); // get delivery order
 Route::get('/pickup-order', [OrderController::class, 'getPickupOrder']); // get pick up order
 Route::post('/order', [OrderController::class, 'order']); // add pick up order
 Route::post('/delivery-order', [OrderController::class, 'deliveryOrder']); // add delivery order
+Route::post('/package-order', [OrderController::class, 'packageOrder']); // add order package
 //
 Route::post('/remove-cart', [OrderController::class, 'removeCart']); // get cart
 Route::get('/cart', [OrderController::class, 'getCart']); // get cart
 Route::post('/cart', [OrderController::class, 'addToCart']); // add to cart
 //
+Route::get('/camera', [ProductController::class, 'getAllCamera']); // get all camera
 Route::get('/product', [ProductController::class, 'getAllProduct']); // get all products
 Route::get('/search', [ProductController::class, 'search']); // search 
 // post method

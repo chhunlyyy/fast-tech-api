@@ -8,6 +8,39 @@ use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
 
+
+    public function getAllCamera(Request $request)
+    {
+        $pageSize = $request->query('pageSize', 10);
+        $pageIndex = $request->query('pageIndex', 0);
+
+        $products = DB::table('product')
+            ->select('*')
+            ->where('is_camera', '=', 1)
+            ->offset($pageIndex)
+            ->limit($pageSize)
+            ->orderBy('id', 'DESC')
+            ->get();
+
+
+
+
+        for ($i = 0; $i < count($products); $i++) {
+            // get colors
+            $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
+            // get images
+            $images = DB::table('image')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
+            // get details
+            $details = DB::table('detail')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
+
+            $products[$i]->colors = $colors;
+            $products[$i]->images = $images;
+            $products[$i]->details = $details;
+        }
+
+        return $products;
+    }
+
     public function getAllProduct(Request $request)
     {
         $pageSize = $request->query('pageSize', 10);
