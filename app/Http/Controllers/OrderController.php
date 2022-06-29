@@ -120,6 +120,7 @@ class OrderController extends Controller
             'address_id_ref' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
+            'status' => 'required',
         ]);
 
 
@@ -129,7 +130,8 @@ class OrderController extends Controller
             $orderPackage = array(
                 'user_id' => $request->user_id,
                 'product_id' => $request->product_id,
-                'address_id_ref' => $request->address_id_ref
+                'address_id_ref' => $request->address_id_ref,
+                'status' => $request->status
             );
 
             $address = array(
