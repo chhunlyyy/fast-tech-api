@@ -10,6 +10,25 @@ class UserController extends Controller
 {
 
 
+    public function checkAdmin(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+        ]);
+
+        $result = DB::table('admin_user')
+            ->select('id')
+            ->where('phone', '=', $request->phone)
+            ->get();
+
+        return response()->json(
+            [
+                'status' => count($result) == 0 ? '400' : '200',
+            ]
+        );;
+    }
+
+
     public function getUser(Request $request)
     {
         $request->validate([
