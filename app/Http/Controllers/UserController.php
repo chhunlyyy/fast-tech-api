@@ -5,9 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\igrate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use League\CommonMark\Extension\Table\Table;
 
 class UserController extends Controller
 {
+
+
+    public function logOut(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+            'token' => 'required',
+        ]);
+
+        return  DB::table('user')
+            ->where('phone', '=', $request->phone)
+            ->where('token', '=', $request->token)
+            ->update(array('token' => null));
+    }
 
 
     public function checkAdmin(Request $request)
@@ -57,8 +72,6 @@ class UserController extends Controller
 
         if (count($checkUser) == 0) {
 
-
-
             return response()->json([
                 [
                     'message' => 'លេខទូរស័ព្ទ និងពាក្យសម្ងាត់មិនត្រឹមត្រូវ',
@@ -67,22 +80,10 @@ class UserController extends Controller
             ]);
         } else {
 
-            $checkToken = DB::table('user')
-                ->select('id')
-                ->where('token', '=', $request->token)
-                ->where('phone', '=', $request->phone)
-                ->get();
 
 
-            if (count($checkToken) == 0) {
-                $arrayData = [
-                    'name' => $checkUser[0]->name,
-                    'password' => $request->password,
-                    'phone' => $request->phone,
-                    'token'  => $request->token,
-                ];
-                DB::table('user')->insert($arrayData);
-            }
+            DB::table('user')->where('id', '=', $checkUser[0]->id)->update(array('token' => $request->token));
+
             //
 
             return response()->json([

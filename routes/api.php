@@ -45,4 +45,5 @@ Route::post('/color', [ProductController::class, 'addColor']); // add detail
 Route::post('/user-register', [UserController::class, 'register']); // register user
 Route::get('/admin-user', [UserController::class, 'checkAdmin']); // check admin user
 Route::post('/user-login', [UserController::class, 'login']); // register user
+Route::post('/user-logout', [UserController::class, 'logOut']); // register user
 Route::get('/user', [UserController::class, 'getUser']); //get user

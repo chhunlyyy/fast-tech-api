@@ -289,7 +289,9 @@ class OrderController extends Controller
             'user_id' => 'required',
         ]);
 
-        $products = DB::table('cart')->select('*')->get();
+        $products = DB::table('cart')
+            ->where('user_id', '=', $request->user_id)
+            ->select('*')->get();
 
 
         for ($i = 0; $i < count($products); $i++) {
