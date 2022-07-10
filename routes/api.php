@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Route;
 
 
 
+
+
 Route::get('/package-order', [OrderController::class, 'getPackageOrder']); // get package order
 Route::get('/delivery-order', [OrderController::class, 'getDeliveryOrder']); // get delivery order
 Route::get('/pickup-order', [OrderController::class, 'getPickupOrder']); // get pick up order
@@ -41,9 +43,11 @@ Route::post('/image', [ProductController::class, 'addImage']); // add image
 Route::post('/detail', [ProductController::class, 'addDetail']); // add detail
 Route::post('/color', [ProductController::class, 'addColor']); // add detail
 // user controller
-
+Route::delete('/role', [UserController::class, 'deleteRole']); // delete role
+Route::post('/role', [UserController::class, 'addRole']); // add new phone to admin
+Route::get('/admin-user', [UserController::class, 'getAdminUser']); // get All Admin user
 Route::post('/user-register', [UserController::class, 'register']); // register user
-Route::get('/admin-user', [UserController::class, 'checkAdmin']); // check admin user
+Route::post('/admin-user', [UserController::class, 'checkAdmin']); // check admin user
 Route::post('/user-login', [UserController::class, 'login']); // register user
 Route::post('/user-logout', [UserController::class, 'logOut']); // register user
 Route::get('/user', [UserController::class, 'getUser']); //get user

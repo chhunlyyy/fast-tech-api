@@ -11,6 +11,80 @@ class UserController extends Controller
 {
 
 
+
+    public function deleteRole(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+        ]);
+
+        try {
+            DB::table('admin_user')->where('phone', '=', $request->phone)->delete();
+
+            return response()->json(
+                [
+                    'status' => '200',
+                ]
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '422',
+                ]
+            );
+        }
+    }
+    public function addRole(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+            'role' => 'required',
+        ]);
+
+        try {
+
+            $checkUser = DB::table('user')->select('id')->where('phone', '=', $request->phone)->get();
+
+            if (count($checkUser) == 0) {
+                return response()->json(
+                    [
+                        'status' => '400',
+                    ]
+                );
+            }
+
+            DB::table('admin_user')->insert($request->toArray());
+
+            return response()->json(
+                [
+                    'status' => '200',
+                ]
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'status' => '422',
+                ]
+            );
+        }
+    }
+
+
+    public function getAdminUser()
+    {
+        $phone = DB::table('admin_user')->select('*')->get();
+
+        for ($i = 0; $i < count($phone); $i++) {
+            $phone[$i] = DB::table('user')
+                ->select('id', 'name', 'phone')
+                ->where('phone', '=', $phone[$i]->phone)
+                ->get()[0];
+        }
+
+        return  $phone;
+    }
+
+
     public function logOut(Request $request)
     {
         $request->validate([
@@ -32,13 +106,23 @@ class UserController extends Controller
         ]);
 
         $result = DB::table('admin_user')
-            ->select('id')
+            ->select('*')
             ->where('phone', '=', $request->phone)
             ->get();
 
+
+        if (count($result) == 0) {
+            $status = '400';
+        } else {
+            if ($result[0]->role == 0) {
+                $status = '200';
+            } else {
+                $status = '201';
+            }
+        }
         return response()->json(
             [
-                'status' => count($result) == 0 ? '400' : '200',
+                'status' => $status,
             ]
         );;
     }
@@ -79,8 +163,6 @@ class UserController extends Controller
                 ]
             ]);
         } else {
-
-
 
             DB::table('user')->where('id', '=', $checkUser[0]->id)->update(array('token' => $request->token));
 
