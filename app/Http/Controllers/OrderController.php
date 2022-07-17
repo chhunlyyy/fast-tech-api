@@ -3,12 +3,41 @@
 namespace App\Http\Controllers;
 
 use App\Models\igrate;
+use Exception;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+
+
+    public function updateOrderStatus(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required',
+            'status' => 'required',
+        ]);
+
+        try {
+            DB::table('orders')
+                ->where('id', '=', $request->order_id)
+                ->update(array('status' => $request->status));
+
+            return response()->json(
+                [
+                    'status' => '200',
+                ]
+            );
+        } catch (Exception $e) {
+            return response()->json(
+                [
+                    'messsage' => $e->getMessage(),
+                    'status' => '402',
+                ]
+            );
+        }
+    }
 
 
     public function getPackageOrder(Request $request)
@@ -18,9 +47,16 @@ class OrderController extends Controller
         ]);
 
 
-        $products = DB::table('package')
-            ->where('user_id', '=', $request->user_id)
-            ->select('*')->get();
+
+        if ($this->isAdminUser($request->user_id)) {
+            $products = DB::table('package')
+                ->select('*')->get();
+        } else {
+            $products = DB::table('package')
+                ->where('user_id', '=', $request->user_id)
+                ->select('*')->get();
+        }
+
 
         for ($i = 0; $i < count($products); $i++) {
             $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
@@ -51,11 +87,18 @@ class OrderController extends Controller
             'user_id' => 'required',
         ]);
 
+        if ($this->isAdminUser($request->user_id)) {
 
-        $products = DB::table('orders')
-            ->where('user_id', '=', $request->user_id)
-            ->where('delivery_type', '=', 1)
-            ->select('*')->get();
+            $products = DB::table('orders')
+                ->where('delivery_type', '=', 1)
+                ->select('*')->get();
+        } else {
+            $products = DB::table('orders')
+                ->where('user_id', '=', $request->user_id)
+                ->where('delivery_type', '=', 1)
+                ->select('*')->get();
+        }
+
 
         for ($i = 0; $i < count($products); $i++) {
             $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
@@ -87,10 +130,18 @@ class OrderController extends Controller
         ]);
 
 
-        $products = DB::table('orders')
-            ->where('user_id', '=', $request->user_id)
-            ->where('delivery_type', '=', 0)
-            ->select('*')->get();
+
+        if ($this->isAdminUser($request->user_id) > 0 ? true : false) {
+            $products = DB::table('orders')
+                ->where('delivery_type', '=', 0)
+                ->select('*')->get();
+        } else {
+            $products = DB::table('orders')
+                ->where('user_id', '=', $request->user_id)
+                ->where('delivery_type', '=', 0)
+                ->select('*')->get();
+        }
+
 
         for ($i = 0; $i < count($products); $i++) {
             $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
@@ -108,6 +159,15 @@ class OrderController extends Controller
         }
 
         return $products;
+    }
+
+    private function isAdminUser($userId)
+    {
+        $phone =  DB::table('user')->select('phone')->where('id', '=', $userId)->get()[0];
+
+        $result = DB::table('admin_user')->select('id')->where('phone', '=', $phone->phone)->get();
+
+        return count($result) > 0 ? '1' : '0';
     }
 
 
