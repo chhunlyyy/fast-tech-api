@@ -11,6 +11,39 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
 
+    public function getOrderStatistic(Request $request)
+    {
+        $request->validate([
+
+            'user_id' => 'required',
+        ]);
+
+
+        if ($this->isAdminUser($request->user_id)) {
+            $delivery = DB::table('orders')->where('delivery_type', '=', 1)->where('status', '=', 3)->count();
+            $pickup = DB::table('orders')->where('delivery_type', '=', 0)->where('status', '=', 3)->count();
+            $package = DB::table('package')->where('status', '=', 3)->count();
+            return response()->json(
+                [
+                    'deliveryCount' => $delivery,
+                    'pickupCount' => $pickup,
+                    'packageCount' => $package,
+                ]
+            );
+        } else {
+            $delivery = DB::table('orders')->where('user_id', '=', $request->user_id)->where('delivery_type', '=', 1)->where('status', '=', 3)->count();
+            $pickup = DB::table('orders')->where('user_id', '=', $request->user_id)->where('delivery_type', '=', 0)->where('status', '=', 3)->count();
+            $package = DB::table('package')->where('user_id', '=', $request->user_id)->where('status', '=', 3)->count();
+            return response()->json(
+                [
+                    'deliveryCount' => $delivery,
+                    'pickupCount' => $pickup,
+                    'packageCount' => $package,
+                ]
+            );
+        }
+    }
+
 
     public function updateOrderStatus(Request $request)
     {
@@ -53,17 +86,44 @@ class OrderController extends Controller
     {
         $request->validate([
             'user_id' => 'required',
+            'is_done' => 'required',
         ]);
 
+        $pageSize = $request->query('pageSize', 10);
+        $pageIndex = $request->query('pageIndex', 0);
+        if ($pageIndex != 0) {
+            $pageIndex = $pageSize * $pageIndex;
+        }
 
 
         if ($this->isAdminUser($request->user_id)) {
-            $products = DB::table('package')
-                ->select('*')->get();
+            if ($request->is_done == 1) {
+                $products = DB::table('package')
+                    ->where('status', '=', 3)
+                    ->offset($pageIndex)
+                    ->limit($pageSize)
+                    ->orderBy('id', 'DESC')
+                    ->select('*')->get();
+            } else {
+                $products = DB::table('package')
+                    ->where('status', '!=', 3)
+                    ->select('*')->get();
+            }
         } else {
-            $products = DB::table('package')
-                ->where('user_id', '=', $request->user_id)
-                ->select('*')->get();
+            if ($request->is_done == 1) {
+                $products = DB::table('package')
+                    ->where('status', '=', 3)
+                    ->where('user_id', '=', $request->user_id)
+                    ->offset($pageIndex)
+                    ->limit($pageSize)
+                    ->orderBy('id', 'DESC')
+                    ->select('*')->get();
+            } else {
+                $products = DB::table('package')
+                    ->where('user_id', '=', $request->user_id)
+                    ->where('status', '!=', 3)
+                    ->select('*')->get();
+            }
         }
 
 
@@ -97,18 +157,48 @@ class OrderController extends Controller
     {
         $request->validate([
             'user_id' => 'required',
+            'is_done' => 'required',
         ]);
+        $pageSize = $request->query('pageSize', 10);
+        $pageIndex = $request->query('pageIndex', 0);
+        if ($pageIndex != 0) {
+            $pageIndex = $pageSize * $pageIndex;
+        }
 
         if ($this->isAdminUser($request->user_id)) {
-
-            $products = DB::table('orders')
-                ->where('delivery_type', '=', 1)
-                ->select('*')->get();
+            if ($request->is_done == 1) {
+                $products = DB::table('orders')
+                    ->where('delivery_type', '=', 1)
+                    ->offset($pageIndex)
+                    ->limit($pageSize)
+                    ->orderBy('id', 'DESC')
+                    ->where('status', '=', 3)
+                    ->select('*')->get();
+            } else {
+                $products = DB::table('orders')
+                    ->where('delivery_type', '=', 1)
+                    ->where('status', '!=', 3)
+                    ->select('*')->get();
+            }
         } else {
-            $products = DB::table('orders')
-                ->where('user_id', '=', $request->user_id)
-                ->where('delivery_type', '=', 1)
-                ->select('*')->get();
+            if ($request->is_done == 1) {
+
+
+                $products = DB::table('orders')
+                    ->where('user_id', '=', $request->user_id)
+                    ->where('status', '=', 3)
+                    ->offset($pageIndex)
+                    ->limit($pageSize)
+                    ->orderBy('id', 'DESC')
+                    ->where('delivery_type', '=', 1)
+                    ->select('*')->get();
+            } else {
+                $products = DB::table('orders')
+                    ->where('user_id', '=', $request->user_id)
+                    ->where('delivery_type', '=', 1)
+                    ->where('status', '!=', 3)
+                    ->select('*')->get();
+            }
         }
 
 
@@ -141,19 +231,47 @@ class OrderController extends Controller
     {
         $request->validate([
             'user_id' => 'required',
+            'is_done' => 'required',
         ]);
-
+        $pageSize = $request->query('pageSize', 10);
+        $pageIndex = $request->query('pageIndex', 0);
+        if ($pageIndex != 0) {
+            $pageIndex = $pageSize * $pageIndex;
+        }
 
 
         if ($this->isAdminUser($request->user_id) > 0 ? true : false) {
-            $products = DB::table('orders')
-                ->where('delivery_type', '=', 0)
-                ->select('*')->get();
+            if ($request->is_done == 1) {
+                $products = DB::table('orders')
+                    ->where('delivery_type', '=', 0)
+                    ->where('status', '=', 3)
+                    ->offset($pageIndex)
+                    ->limit($pageSize)
+                    ->orderBy('id', 'DESC')
+                    ->select('*')->get();
+            } else {
+                $products = DB::table('orders')
+                    ->where('delivery_type', '=', 0)
+                    ->where('status', '!=', 3)
+                    ->select('*')->get();
+            }
         } else {
-            $products = DB::table('orders')
-                ->where('user_id', '=', $request->user_id)
-                ->where('delivery_type', '=', 0)
-                ->select('*')->get();
+            if ($request->is_done == 1) {
+                $products = DB::table('orders')
+                    ->where('user_id', '=', $request->user_id)
+                    ->where('delivery_type', '=', 0)
+                    ->where('status', '=', 3)
+                    ->offset($pageIndex)
+                    ->limit($pageSize)
+                    ->orderBy('id', 'DESC')
+                    ->select('*')->get();
+            } else {
+                $products = DB::table('orders')
+                    ->where('user_id', '=', $request->user_id)
+                    ->where('delivery_type', '=', 0)
+                    ->where('status', '!=', 3)
+                    ->select('*')->get();
+            }
         }
 
 
