@@ -80,10 +80,13 @@ class OrderController extends Controller
 
             $address = DB::table('address')->select('*')->where("id_ref", "=", $products[$i]->address_id_ref)->get();
 
+            $user =  DB::table('user')->select('id', 'name', 'phone')->where("id", "=", $products[$i]->user_id)->get();
+
             $products[$i]->product->colors = $colors;
             $products[$i]->product->images = $images;
             $products[$i]->product->details = $details;
             $products[$i]->product->address = $address;
+            $products[$i]->user = $user[0];
         }
 
         return $products;
@@ -119,13 +122,15 @@ class OrderController extends Controller
             // get details
             $details = DB::table('detail')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
             //get location
-
             $address = DB::table('address')->select('*')->where("id_ref", "=", $products[$i]->address_id_ref)->get();
+
+            $user =  DB::table('user')->select('id', 'name', 'phone')->where("id", "=", $products[$i]->user_id)->get();
 
             $products[$i]->product->colors = $colors;
             $products[$i]->product->images = $images;
             $products[$i]->product->details = $details;
             $products[$i]->product->address = $address;
+            $products[$i]->user =  $user[0];
         }
 
         return $products;
@@ -162,9 +167,13 @@ class OrderController extends Controller
             // get details
             $details = DB::table('detail')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
 
+            $user =  DB::table('user')->select('id', 'name', 'phone')->where("id", "=", $products[$i]->user_id)->get();
+
+
             $products[$i]->product->colors = $colors;
             $products[$i]->product->images = $images;
             $products[$i]->product->details = $details;
+            $products[$i]->user = $user[0];
         }
 
         return $products;
