@@ -17,12 +17,21 @@ class OrderController extends Controller
         $request->validate([
             'order_id' => 'required',
             'status' => 'required',
+            'is_package' => 'required',
+
         ]);
 
         try {
-            DB::table('orders')
-                ->where('id', '=', $request->order_id)
-                ->update(array('status' => $request->status));
+            if ($request->is_package) {
+                DB::table('package')
+                    ->where('id', '=', $request->order_id)
+                    ->update(array('status' => $request->status));
+            } else {
+                DB::table('orders')
+                    ->where('id', '=', $request->order_id)
+                    ->update(array('status' => $request->status));
+            }
+
 
             return response()->json(
                 [
