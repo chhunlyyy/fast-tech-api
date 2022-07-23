@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
+
 Route::get('/order-statistic', [OrderController::class, 'getOrderStatistic']); // get orderstatistic
 Route::post('/order-status', [OrderController::class, 'updateOrderStatus']); // update order status
 //

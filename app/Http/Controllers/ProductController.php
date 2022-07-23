@@ -8,7 +8,63 @@ use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
 
+    public function insertDetail(Request $request)
+    {
+        $request->validate([
+            'product_id_ref' => 'required',
+            'detail' => 'required',
+            'descs' => 'required',
+        ]);
 
+        try {
+            DB::table('detail')->insert($request->all());
+            return response()->json(
+                [
+                    'status' => '200',
+                ]
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                [
+                    'message' => $e,
+                    'status' => '400',
+                ]
+            ]);
+        }
+    }
+
+    public function insertProduct(Request $request)
+    {
+        $request->validate([
+            'id_ref' => 'required',
+            'name' => 'required',
+            'price' => 'required',
+            'discount' => 'required',
+            'price_after_discount' => 'required',
+            'is_warranty' => 'required',
+            'warranty_period' => 'required',
+            'min_qty' => 'required',
+            'is_camera' => 'required',
+        ]);
+
+        try {
+            DB::table('product')->insert($request->all());
+            return response()->json(
+                [
+                    'status' => '200',
+                ]
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                [
+                    'message' => $e,
+                    'status' => '400',
+                ]
+            ]);
+        }
+    }
+
+    //
     public function getAllCamera(Request $request)
     {
         $pageSize = $request->query('pageSize', 10);
@@ -21,9 +77,6 @@ class ProductController extends Controller
             ->limit($pageSize)
             ->orderBy('id', 'DESC')
             ->get();
-
-
-
 
         for ($i = 0; $i < count($products); $i++) {
             // get colors
@@ -165,10 +218,10 @@ class ProductController extends Controller
 
             DB::table('image')->insert($postData);
             return response()->json([
-                [
-                    'message' => 'image added successfully',
-                    'status' => '200',
-                ]
+
+                'message' => 'image added successfully',
+                'status' => '200',
+
             ]);
         } else {
             throw new \Exception('Only files with extension ' . implode(", ", $allowedfileExtension) . ' are allowed!');
@@ -185,17 +238,17 @@ class ProductController extends Controller
         try {
             DB::table('detail')->insert($request->all());
             return response()->json([
-                [
-                    'message' => 'added detail successfully',
-                    'status' => '200',
-                ]
+
+                'message' => 'added detail successfully',
+                'status' => '200',
+
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                [
-                    'messsage' => 'added detail unsuccessfully',
-                    'status' => '402',
-                ]
+
+                'messsage' => 'added detail unsuccessfully',
+                'status' => '402',
+
             ]);
         }
     }
@@ -210,17 +263,17 @@ class ProductController extends Controller
         try {
             DB::table('color')->insert($request->all());
             return response()->json([
-                [
-                    'message' => 'added color successfully',
-                    'status' => '200',
-                ]
+
+                'message' => 'added color successfully',
+                'status' => '200',
+
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                [
-                    'messsage' => 'added color unsuccessfully',
-                    'status' => '402',
-                ]
+
+                'messsage' => 'added color unsuccessfully',
+                'status' => '402',
+
             ]);
         }
     }
@@ -239,19 +292,19 @@ class ProductController extends Controller
         ]);
         try {
             DB::table('product')->insert($request->all());
-            return response()->json([
+            return response()->json(
                 [
                     'message' => 'added product successfully',
                     'status' => '200',
                 ]
-            ]);
+            );
         } catch (\Exception $e) {
-            return response()->json([
+            return response()->json(
                 [
-                    'messsage' => 'added product unsuccessfully',
+                    'messsage' => $e,
                     'status' => '402',
                 ]
-            ]);
+            );
         }
     }
 }
