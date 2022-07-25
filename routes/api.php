@@ -21,7 +21,12 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
+// delete product
+Route::delete('/delete-image', [ProductController::class, 'deleteImage']);
+Route::delete('/delete-detail', [ProductController::class, 'deleteDetail']);
+Route::delete('/delete-color', [ProductController::class, 'deleteColor']);
+Route::delete('/delete', [ProductController::class, 'deleteProduct']);
+//
 Route::get('/order-statistic', [OrderController::class, 'getOrderStatistic']); // get orderstatistic
 Route::post('/order-status', [OrderController::class, 'updateOrderStatus']); // update order status
 //
@@ -38,6 +43,7 @@ Route::post('/cart', [OrderController::class, 'addToCart']); // add to cart
 //
 Route::get('/camera', [ProductController::class, 'getAllCamera']); // get all camera
 Route::get('/product', [ProductController::class, 'getAllProduct']); // get all products
+Route::get('/product-by-id', [ProductController::class, 'getProductById']); // get product by id
 Route::get('/search', [ProductController::class, 'search']); // search 
 // post method
 Route::post('/product', [ProductController::class, 'addProduct']); // add image
