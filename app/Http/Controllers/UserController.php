@@ -197,10 +197,11 @@ class UserController extends Controller
         $checkUser =   DB::table('user')->select('id')->where('phone', '=', $request->phone)->get();
 
         if (count($checkUser) != 0) {
+            DB::table('user')->where('id', '=', $checkUser[0]->id)->update($arrayData);
             return response()->json([
                 [
-                    'message' => 'លេខទូរស័ព្ទ ត្រូវបានប្រើប្រាស់រួចរាល់',
-                    'status' => '422',
+                    'user' => DB::table('user')->select('id', 'name', 'phone')->where("phone", '=', $request->phone)->get(),
+                    'status' => '200',
                 ]
             ]);
         } else {
