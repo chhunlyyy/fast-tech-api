@@ -11,6 +11,17 @@ class UserController extends Controller
 {
 
 
+    public function getToken(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+        ]);
+
+
+        return DB::table('user')->where('phone', '=', $request->phone)->select('token')->first();
+    }
+
+
 
     public function deleteRole(Request $request)
     {

@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
+Route::get('/token', [UserController::class, 'getToken']);
 // delete product
 Route::delete('/delete-image', [ProductController::class, 'deleteImage']);
 Route::delete('/delete-detail', [ProductController::class, 'deleteDetail']);
