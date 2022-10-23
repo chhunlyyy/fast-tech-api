@@ -302,7 +302,9 @@ class ProductController extends Controller
     public function search(Request $request)
     {
         $request->validate([
-            'product_name' => 'required'
+            'product_name' => 'nullable',
+            'start_price'=>'nullable',
+            'to_price'=>'nullable',
         ]);
         $pageSize = $request->query('pageSize', 10);
         $pageIndex = $request->query('pageIndex', 0);
@@ -314,11 +316,16 @@ class ProductController extends Controller
         }
         // get phone data //
 
+        $startPrice =  $request->start_price ??0;
+        $toPrice =  $request->to_price??10000000;
+
         $qeury = "
             SELECT
                *
             FROM product
-            WHERE product.name LIKE '%$productName%'
+            WHERE product.name LIKE '%$productName%' && 
+            product.price >= $startPrice &&
+            product.price <= $toPrice
             ORDER BY product.id DESC
             LIMIT $pageSize OFFSET $pageIndex";
 
