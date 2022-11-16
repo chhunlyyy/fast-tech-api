@@ -30,6 +30,7 @@ Route::delete('/delete', [ProductController::class, 'deleteProduct']);
 Route::get('/order-statistic', [OrderController::class, 'getOrderStatistic']); // get orderstatistic
 Route::post('/order-status', [OrderController::class, 'updateOrderStatus']); // update order status
 //
+Route::get('/order-report', [OrderController::class, 'getOrderReport']); // get order report
 Route::get('/package-order', [OrderController::class, 'getPackageOrder']); // get package order
 Route::get('/delivery-order', [OrderController::class, 'getDeliveryOrder']); // get delivery order
 Route::get('/pickup-order', [OrderController::class, 'getPickupOrder']); // get pick up order
@@ -45,6 +46,7 @@ Route::get('/camera', [ProductController::class, 'getAllCamera']); // get all ca
 Route::get('/product', [ProductController::class, 'getAllProduct']); // get all products
 Route::get('/product-by-id', [ProductController::class, 'getProductById']); // get product by id
 Route::get('/search', [ProductController::class, 'search']); // search 
+
 // post method
 Route::post('/product', [ProductController::class, 'addProduct']); // add image
 Route::post('/image', [ProductController::class, 'addImage']); // add image

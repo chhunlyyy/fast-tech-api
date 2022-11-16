@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\igrate;
 use Exception;
-use Facade\FlareClient\Http\Response;
+use App\Models\igrate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Facade\FlareClient\Http\Response;
+use Illuminate\Support\Arr;
 
 class OrderController extends Controller
 {
@@ -79,6 +81,41 @@ class OrderController extends Controller
                 ]
             );
         }
+    }
+
+    public function getOrderReport (Request $request){
+        $request->validate([
+            'start_date' => 'required',
+            'to_date' => 'required',
+        ]);
+
+        $startDate = $request->start_date;
+        $toDate =$request->to_date;
+        $products =    DB::table('orders')->select('*')
+            ->where('date','>=',$startDate)
+            ->where('date','<=',$toDate)
+            ->where('status','=','3')
+            ->get();
+
+            for ($i = 0; $i < count($products); $i++){
+
+                $products[$i]->user_name =  DB::table('user')->select('name')->first()->name;
+                $products[$i]->phone =  DB::table('user')->select('phone')->first()->phone;
+                $products[$i]->phone =  DB::table('user')->select('phone')->first()->phone;
+                $products[$i]->product_name =  DB::table('product')->select('name')->first()->name;
+                $products[$i]->final_price =  DB::table('product')->select('price_after_discount')->first()->price_after_discount;
+                $products[$i]->discount =  DB::table('product')->select('discount')->first()->discount;
+                unset( $products[$i]->user_id);
+                unset( $products[$i]->id);
+                unset( $products[$i]->product_id);
+                unset( $products[$i]->color_id);
+                unset( $products[$i]->delivery_type);
+                unset( $products[$i]->status);
+                unset( $products[$i]->address_id_ref);
+               
+            }
+
+            return  $products;
     }
 
 
@@ -240,7 +277,7 @@ class OrderController extends Controller
         }
 
 
-        if ($this->isAdminUser($request->user_id) > 0 ? true : false) {
+        if ($this->isAdminUser($request->user_id) ) {
             if ($request->is_done == 1) {
                 $products = DB::table('orders')
                     ->where('delivery_type', '=', 0)
@@ -249,6 +286,7 @@ class OrderController extends Controller
                     ->limit($pageSize)
                     ->orderBy('id', 'DESC')
                     ->select('*')->get();
+            
             } else {
                 $products = DB::table('orders')
                     ->where('delivery_type', '=', 0)
@@ -299,9 +337,14 @@ class OrderController extends Controller
 
     private function isAdminUser($userId)
     {
-        $phone =  DB::table('user')->select('phone')->where('id', '=', $userId)->get()[0];
+        $phone =  DB::table('user')->select('phone')->where('id', '=', $userId)->get();
 
-        $result = DB::table('admin_user')->select('id')->where('phone', '=', $phone->phone)->get();
+
+        if(count($phone)==0){
+            return 0;
+        }
+
+        $result = DB::table('admin_user')->select('id')->where('phone', '=', $phone[0]->phone)->get();
 
         return count($result) > 0 ? '1' : '0';
     }
