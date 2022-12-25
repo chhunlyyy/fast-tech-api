@@ -223,6 +223,13 @@ class ProductController extends Controller
             ->get();
 
         for ($i = 0; $i < count($products); $i++) {
+
+            // get camera type
+            if ($products[$i]->camera_type_id != null) {
+                $products[$i]->camera_type = DB::table('camera_type')->select('type')->where('id','=',$products[$i]->camera_type_id)->first()->type;
+            } else {
+                $products[$i]->camera_type = null;
+            }
             // get colors
             $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
             // get images
@@ -284,6 +291,12 @@ class ProductController extends Controller
 
 
         for ($i = 0; $i < count($products); $i++) {
+            // get camera type
+            if ($products[$i]->camera_type_id != null) {
+                $products[$i]->camera_type = DB::table('camera_type')->select('type')->where('id','=',$products[$i]->camera_type_id)->first()->type;
+            } else {
+                $products[$i]->camera_type = null;
+            }
             // get colors
             $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
             // get images
@@ -303,8 +316,8 @@ class ProductController extends Controller
     {
         $request->validate([
             'product_name' => 'nullable',
-            'start_price'=>'nullable',
-            'to_price'=>'nullable',
+            'start_price' => 'nullable',
+            'to_price' => 'nullable',
         ]);
         $pageSize = $request->query('pageSize', 10);
         $pageIndex = $request->query('pageIndex', 0);
@@ -316,8 +329,8 @@ class ProductController extends Controller
         }
         // get phone data //
 
-        $startPrice =  $request->start_price ??0;
-        $toPrice =  $request->to_price??10000000;
+        $startPrice =  $request->start_price ?? 0;
+        $toPrice =  $request->to_price ?? 10000000;
 
         $qeury = "
             SELECT
@@ -332,6 +345,12 @@ class ProductController extends Controller
         $products  = DB::select(DB::raw($qeury));
 
         for ($i = 0; $i < count($products); $i++) {
+            // get camera type
+            if ($products[$i]->camera_type_id != null) {
+                $products[$i]->camera_type = DB::table('camera_type')->select('type')->where('id','=',$products[$i]->camera_type_id)->first()->type;
+            } else {
+                $products[$i]->camera_type = null;
+            }
             // get colors
             $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->id_ref)->get();
             // get images
@@ -440,6 +459,10 @@ class ProductController extends Controller
         }
     }
 
+    public function getAllCameryType(){
+        return DB::table('camera_type')->select('*')->get();
+    }
+
     public function addProduct(Request $request)
     {
         $request->validate([
@@ -475,5 +498,22 @@ class ProductController extends Controller
                 ]
             );
         }
+    }
+
+
+    public function addCameraType (Request $request){
+        $request->validate([
+            'type'=> 'required',
+        ]);
+
+        DB::table('camera_type')->insert($request->all());
+
+
+        return response()->json(
+            [
+                'message' => 'added cameratype successfully',
+                'status' => '200',
+            ]
+        );
     }
 }

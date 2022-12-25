@@ -47,6 +47,10 @@ Route::get('/product', [ProductController::class, 'getAllProduct']); // get all 
 Route::get('/product-by-id', [ProductController::class, 'getProductById']); // get product by id
 Route::get('/search', [ProductController::class, 'search']); // search 
 
+
+Route::get('/camera-type', [ProductController::class, 'getAllCameryType']); //  getAllCameryType
+Route::post('/camera-type', [ProductController::class, 'addCameraType']); //  add camera type
+
 // post method
 Route::post('/product', [ProductController::class, 'addProduct']); // add image
 Route::post('/image', [ProductController::class, 'addImage']); // add image
