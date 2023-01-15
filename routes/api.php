@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Routing\RouteGroup;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,3 +66,8 @@ Route::post('/admin-user', [UserController::class, 'checkAdmin']); // check admi
 Route::post('/user-login', [UserController::class, 'login']); // register user
 Route::post('/user-logout', [UserController::class, 'logOut']); // register user
 Route::get('/user', [UserController::class, 'getUser']); //get user
+
+Route::get('/firt-report', [ReportController::class, 'firstReport']); //get first report
+Route::get('/second-report', [ReportController::class, 'secondReport']); //get second report
+Route::get('/third-report', [ReportController::class, 'thirdReport']); //get third report
+

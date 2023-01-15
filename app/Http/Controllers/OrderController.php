@@ -100,12 +100,12 @@ class OrderController extends Controller
 
         for ($i = 0; $i < count($products); $i++) {
 
-            $products[$i]->user_name =  DB::table('user')->select('name')->first()->name;
-            $products[$i]->phone =  DB::table('user')->select('phone')->first()->phone;
-            $products[$i]->phone =  DB::table('user')->select('phone')->first()->phone;
-            $products[$i]->product_name =  DB::table('product')->select('name')->first()->name;
-            $products[$i]->final_price =  DB::table('product')->select('price_after_discount')->first()->price_after_discount;
-            $products[$i]->discount =  DB::table('product')->select('discount')->first()->discount;
+            $products[$i]->user_name =  DB::table('user')->select('name')->where('id',  $products[$i]->user_id)->first()->name;
+            $products[$i]->phone =  DB::table('user')->select('phone')->where('id',  $products[$i]->user_id)->first()->phone;
+            $products[$i]->phone =  DB::table('user')->select('phone')->where('id',  $products[$i]->user_id)->first()->phone;
+            $products[$i]->product_name =  DB::table('product')->select('name')->where('id',  $products[$i]->product_id)->first()->name;
+            $products[$i]->final_price =  DB::table('product')->select('price_after_discount')->where('id',  $products[$i]->product_id)->first()->price_after_discount;
+            $products[$i]->discount =  DB::table('product')->select('discount')->where('id',  $products[$i]->product_id)->first()->discount;
             unset($products[$i]->user_id);
             unset($products[$i]->id);
             unset($products[$i]->product_id);
@@ -128,6 +128,7 @@ class OrderController extends Controller
 
         $pageSize = $request->query('pageSize', 10);
         $pageIndex = $request->query('pageIndex', 0);
+        $status = $request->query('status', null);
         if ($pageIndex != 0) {
             $pageIndex = $pageSize * $pageIndex;
         }
@@ -142,9 +143,15 @@ class OrderController extends Controller
                     ->orderBy('id', 'DESC')
                     ->select('*')->get();
             } else {
-                $products = DB::table('package')
-                    ->where('status', '!=', 3)
-                    ->select('*')->get();
+                if ($status == null) {
+                    $products = DB::table('package')
+                        // ->where('status', '!=', 3)
+                        ->select('*')->get();
+                } else {
+                    $products = DB::table('package')
+                        ->where('status', '=', $status)
+                        ->select('*')->get();
+                }
             }
         } else {
             if ($request->is_done == 1) {
@@ -156,10 +163,17 @@ class OrderController extends Controller
                     ->orderBy('id', 'DESC')
                     ->select('*')->get();
             } else {
-                $products = DB::table('package')
-                    ->where('user_id', '=', $request->user_id)
-                    ->where('status', '!=', 3)
-                    ->select('*')->get();
+                if ($status == null) {
+                    $products = DB::table('package')
+                        ->where('user_id', '=', $request->user_id)
+                        // ->where('status', '!=', 3)
+                        ->select('*')->get();
+                } else {
+                    $products = DB::table('package')
+                        ->where('user_id', '=', $request->user_id)
+                        ->where('status', '=', $status)
+                        ->select('*')->get();
+                }
             }
         }
 
@@ -167,13 +181,13 @@ class OrderController extends Controller
         for ($i = 0; $i < count($products); $i++) {
 
             $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
-             // get camera type
-             if ($products[$i]->product->camera_type_id != null) {
-                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id','=',$products[$i]->product->camera_type_id)->first()->type;
+            // get camera type
+            if ($products[$i]->product->camera_type_id != null) {
+                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id', '=', $products[$i]->product->camera_type_id)->first()->type;
             } else {
                 $products[$i]->product->camera_type = null;
             }
-        
+
             // get colors
             $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
             // get images
@@ -205,12 +219,14 @@ class OrderController extends Controller
         ]);
         $pageSize = $request->query('pageSize', 10);
         $pageIndex = $request->query('pageIndex', 0);
+        $status = $request->query('status', null);
         if ($pageIndex != 0) {
             $pageIndex = $pageSize * $pageIndex;
         }
 
         if ($this->isAdminUser($request->user_id)) {
             if ($request->is_done == 1) {
+                // $products  =[];
                 $products = DB::table('orders')
                     ->where('delivery_type', '=', 1)
                     ->offset($pageIndex)
@@ -219,15 +235,19 @@ class OrderController extends Controller
                     ->where('status', '=', 3)
                     ->select('*')->get();
             } else {
-                $products = DB::table('orders')
-                    ->where('delivery_type', '=', 1)
-                    ->where('status', '!=', 3)
-                    ->select('*')->get();
+                if ($status == null) {
+                    $products = DB::table('orders')
+                        ->where('delivery_type', '=', 1)
+                        ->select('*')->get();
+                } else {
+                    $products = DB::table('orders')
+                        ->where('delivery_type', '=', 1)
+                        ->where('status', '=', $status)
+                        ->select('*')->get();
+                }
             }
         } else {
             if ($request->is_done == 1) {
-
-
                 $products = DB::table('orders')
                     ->where('user_id', '=', $request->user_id)
                     ->where('status', '=', 3)
@@ -237,11 +257,18 @@ class OrderController extends Controller
                     ->where('delivery_type', '=', 1)
                     ->select('*')->get();
             } else {
-                $products = DB::table('orders')
-                    ->where('user_id', '=', $request->user_id)
-                    ->where('delivery_type', '=', 1)
-                    ->where('status', '!=', 3)
-                    ->select('*')->get();
+                if ($status == null) {
+                    $products = DB::table('orders')
+                        ->where('user_id', '=', $request->user_id)
+                        ->where('delivery_type', '=', 1)
+                        ->select('*')->get();
+                } else {
+                    $products = DB::table('orders')
+                        ->where('user_id', '=', $request->user_id)
+                        ->where('delivery_type', '=', 1)
+                        ->where('status', '=', $status)
+                        ->select('*')->get();
+                }
             }
         }
 
@@ -249,14 +276,14 @@ class OrderController extends Controller
         for ($i = 0; $i < count($products); $i++) {
             $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
             $products[$i]->qty = $products[$i]->qty;
-             // get camera type
-             if ($products[$i]->product->camera_type_id != null) {
+            // get camera type
+            if ($products[$i]->product->camera_type_id != null) {
 
-                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id','=',$products[$i]->product->camera_type_id)->first()->type;
+                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id', '=', $products[$i]->product->camera_type_id)->first()->type;
             } else {
                 $products[$i]->product->camera_type = null;
             }
-           
+
             // get colors
             $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
             // get images
@@ -287,6 +314,7 @@ class OrderController extends Controller
         ]);
         $pageSize = $request->query('pageSize', 10);
         $pageIndex = $request->query('pageIndex', 0);
+        $status = $request->query('status', null);
         if ($pageIndex != 0) {
             $pageIndex = $pageSize * $pageIndex;
         }
@@ -302,10 +330,17 @@ class OrderController extends Controller
                     ->orderBy('id', 'DESC')
                     ->select('*')->get();
             } else {
-                $products = DB::table('orders')
-                    ->where('delivery_type', '=', 0)
-                    ->where('status', '!=', 3)
-                    ->select('*')->get();
+                if ($status == null) {
+                    $products = DB::table('orders')
+                        ->where('delivery_type', '=', 0)
+                        // ->where('status', '!=', 3)
+                        ->select('*')->get();
+                } else {
+                    $products = DB::table('orders')
+                        ->where('delivery_type', '=', 0)
+                        ->where('status', '=', $status)
+                        ->select('*')->get();
+                }
             }
         } else {
             if ($request->is_done == 1) {
@@ -318,11 +353,19 @@ class OrderController extends Controller
                     ->orderBy('id', 'DESC')
                     ->select('*')->get();
             } else {
-                $products = DB::table('orders')
-                    ->where('user_id', '=', $request->user_id)
-                    ->where('delivery_type', '=', 0)
-                    ->where('status', '!=', 3)
-                    ->select('*')->get();
+                if ($status == null) {
+                    $products = DB::table('orders')
+                        ->where('user_id', '=', $request->user_id)
+                        ->where('delivery_type', '=', 0)
+                        // ->where('status', '!=', 3)
+                        ->select('*')->get();
+                } else {
+                    $products = DB::table('orders')
+                        ->where('user_id', '=', $request->user_id)
+                        ->where('delivery_type', '=', 0)
+                        ->where('status', '=', $status)
+                        ->select('*')->get();
+                }
             }
         }
 
@@ -332,7 +375,7 @@ class OrderController extends Controller
             $products[$i]->qty = $products[$i]->qty;
             // get camera type
             if ($products[$i]->product->camera_type_id != null) {
-                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id','=',$products[$i]->product->camera_type_id)->first()->type;
+                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id', '=', $products[$i]->product->camera_type_id)->first()->type;
             } else {
                 $products[$i]->product->camera_type = null;
             }
@@ -556,13 +599,13 @@ class OrderController extends Controller
         for ($i = 0; $i < count($products); $i++) {
             $products[$i]->product = DB::table('product')->select('*')->where('id', '=', $products[$i]->product_id)->get()[0];
             $products[$i]->qty = $products[$i]->qty;
-             // get camera type
-             if ($products[$i]->product->camera_type_id != null) {
-                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id','=',$products[$i]->product->camera_type_id)->first()->type;
+            // get camera type
+            if ($products[$i]->product->camera_type_id != null) {
+                $products[$i]->product->camera_type = DB::table('camera_type')->select('type')->where('id', '=', $products[$i]->product->camera_type_id)->first()->type;
             } else {
                 $products[$i]->product->camera_type = null;
             }
-           
+
             // get colors
             $colors = DB::table('color')->select('*')->where("product_id_ref", "=", $products[$i]->product->id_ref)->get();
             // get images
